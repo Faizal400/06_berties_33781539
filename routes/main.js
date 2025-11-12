@@ -1,15 +1,17 @@
-// Create a new router
-const express = require("express")
-const router = express.Router()
+//---------------------------------------
+// Main site pages: home, about
+// ---------------------------------------
 
-// Handle our routes
-router.get('/',function(req, res, next){
-    res.render('index.ejs')
+//Create a new router
+const express = require("express");
+const router = express.Router();
+
+router.get("/", (req, res) => {
+  res.render("index.ejs", { shopData: req.app.locals.shopData });
 });
 
-router.get('/about',function(req, res, next){
-    res.render('about.ejs')
+router.get("/about", (req, res) => {
+  res.render("about.ejs", { shopData: req.app.locals.shopData });
 });
 
-// Export the router object so index.js can access it
-module.exports = router
+module.exports = router;

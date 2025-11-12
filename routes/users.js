@@ -1,15 +1,35 @@
-// Create a new router
-const express = require("express")
-const router = express.Router()
+// ---------------------------------------
+// Handles user registration and validation
+// ---------------------------------------
 
-router.get('/register', function (req, res, next) {
-    res.render('register.ejs')
-})
+//Create a new router
+const express = require("express");
+const router = express.Router();
 
-router.post('/registered', function (req, res, next) {
-    // saving data in database
-    res.send(' Hello '+ req.body.first + ' '+ req.body.last +' you are now registered!  We will send an email to you at ' + req.body.email);                                                                              
-}); 
+// Render registration form
+router.get("/register", (req, res) => {
+  res.render("register.ejs", { shopData: req.app.locals.shopData });
+});
 
-// Export the router object so index.js can access it
-module.exports = router
+// Handle registration
+router.post("/registered", (req, res) => {
+  const { first, last, email } = req.body;
+
+  // Email validation regex
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!first || !last || !emailRegex.test(email)) {
+    return res.send(
+      "<h3>Invalid input. Please provide a valid name and email address.</h3>"
+    );
+  }
+
+  res.send(
+    `<h2>Registration successful!</h2>
+    <p>Hello ${first} ${last}, you are now registered.</p>
+    <p>We’ll contact you at <strong>${email}</strong>.</p>
+    <a href="/">Return to home</a>`
+  );
+});
+
+module.exports = router;

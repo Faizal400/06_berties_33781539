@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Books - <%= shopData.shopName %></title>
+    <link rel="stylesheet" href="/main.css" />
+  </head>
+  <body>
+    <h1><%= message %></h1>
+    <% if (availableBooks.length === 0) { %>
+      <p>No books found.</p>
+    <% } else { %>
+      <table border="1" cellpadding="8">
+        <tr><th>Book Name</th><th>Price (£)</th></tr>
+        <% availableBooks.forEach(book => { %>
+          <tr><td><%= book.name %></td><td><%= book.price %></td></tr>
+        <% }); %>
+      </table>
+    <% } %>
+    <br />
+    <a href="/books/addbook">Add a new book</a> | 
+    <a href="/">Return Home</a>
+  </body>
+</html>
