@@ -89,7 +89,7 @@ router.post('/loggedin', (req, res, next) => {
 
     const user = rows[0];
     const hashedPassword = user.password_hash;
-
+    console.log("HASHEDPASSWORD:", hashedPassword);
     bcrypt.compare(password, hashedPassword, (err2, match) => {
       if (err2) {
         return next(err2);
