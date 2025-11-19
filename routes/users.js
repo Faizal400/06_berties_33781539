@@ -85,15 +85,7 @@ router.post('/loggedin', (req, res, next) => {
 
     const user = rows[0];
     const hashedPassword = user.password_hash;
-    console.log("HASHEDPASSWORD:", hashedPassword);
-    console.log("DEBUG: Comparing now…");
-    console.log("TYPEOF password:", typeof password);
-    console.log("TYPEOF hash:", typeof hashedPassword);
-    console.log("PASSWORD LENGTH:", password.length);
-    console.log("HASH LENGTH:", hashedPassword.length);
     bcrypt.compare(password, hashedPassword, (err2, match) => {
-        console.log("RAW COMPARE RESULT:", match);
-        console.log("ERROR FROM COMPARE:", err2);
       if (err2) {
         return next(err2);
       }
@@ -140,18 +132,6 @@ router.get('/audit', (req, res, next) => {
       return next(err);
     }
     res.render('audit.ejs', { auditEntries: result });
-  });
-});
-
-// TEMP: debug route to generate a hash for "smiths"
-router.get('/debug-hash-smiths', (req, res, next) => {
-  const bcrypt = require('bcryptjs');
-  const saltRounds = 10;
-
-  bcrypt.hash('smiths', saltRounds, (err, hash) => {
-    if (err) return next(err);
-    console.log('DEBUG SMITHS HASH:', hash);
-    res.send('Hash for "smiths": ' + hash);
   });
 });
 
