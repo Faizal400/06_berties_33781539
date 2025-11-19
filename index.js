@@ -25,7 +25,7 @@ app.locals.shopData = { shopName: "Bertie's Books" };
 
 // Define the database connection pool (using dotenv with safe defaults)
 const db = mysql.createPool({
-  host: 'docgold.gold.ac.uk', //host: 'localhost',
+  host: 'localhost',
   user: process.env.BB_USER,
   password: process.env.BB_PASSWORD,
   database: process.env.BB_DATABASE,

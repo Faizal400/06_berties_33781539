@@ -9,4 +9,5 @@ INSERT INTO books (name, price) VALUES
 
 INSERT INTO users (username, first, last, email, password_hash)
 VALUES 
-('gold', 'Gold', 'User', 'gold@smiths.com', '$2b$10$3mxnY7K1JK6Tc3MASuf7oOmfwyjqf7/YEfI3sCDQ7yG0jSYi0Bt7W');
+('gold', 'Gold', 'User', 'gold@smiths.com',
+'$2b$10$0wYpZP7r1Y0xzS.6R7oHkOW02xe0tRD7j3328axr7pTwC.d7YSMDq');
