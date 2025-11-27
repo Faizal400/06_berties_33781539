@@ -7,7 +7,7 @@ const router = express.Router();
 // Session-based access control helper (Lab 8a)
 const redirectLogin = (req, res, next) => {
   if (!req.session.userId) {
-    res.redirect('/users/login'); // redirect to the login page
+    res.redirect('../users/login'); // redirect to the login page
   } else {
     next(); // move to the next middleware function
   }
