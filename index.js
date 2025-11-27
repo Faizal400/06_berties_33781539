@@ -6,6 +6,9 @@ const express = require('express');
 const ejs = require('ejs');
 const path = require('path');
 const mysql = require('mysql2');
+var session = require ('express-session');
+const expressSanitizer = require('express-sanitizer');
+
 
 // Create the express application object
 const app = express();
@@ -17,8 +20,24 @@ app.set('view engine', 'ejs');
 // Set up the body parser
 app.use(express.urlencoded({ extended: true }));
 
+// Create an input sanitizer (Lab 8b – sanitisation)
+app.use(expressSanitizer());
+
 // Set up public folder (for css and static js)
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Session setup (Lab 8a – authorisation)
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET || 'somerandomstuff',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      // 10 minutes in milliseconds
+      maxAge: 600000,
+    },
+  })
+);
 
 // Define our application-specific data (available in all templates as shopData)
 app.locals.shopData = { shopName: "Bertie's Books" };

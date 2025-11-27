@@ -1,53 +1,68 @@
-# Berties Books - Lab 7
-> *A continuation of lab 6*
+# Berties Books – Lab 8  
+> *A continuation of Lab 6 and Lab 7*
 
-Sample code for Dynamic Web Applications module.
+Sample code for **Dynamic Web Applications** module.
 
-Uses node.js with Express, EJS, bcryptjs etc.
+Uses **Node.js** with **Express**, **EJS**, **MySQL2**, **bcryptjs**, **express-session**, `dotenv`, etc.
 
 **Author:** Faizal Ali  
 **Student ID:** 33781539  
-**Lab 7: Password Hashing + Authentication + Audit Logging**
+**Lab 8: Sessions, Access Control, Validation & Security**
 
 ---
 
-## Overview
-This project extends the earlier Bertie’s Books application from Lab 6 (Express + MySQL) by introducing secure authentication features, including:
-- Secure password hashing using bcryptjs
-- Login with password verification
-- An audit log recording all login attempts (success or failure)
-- A default login account ("gold" / "smiths") inserted during deployment
-- Use of a .env file to store database credentials
-- Fully functional routes for searching, listing, adding books, and registering users
+## 1. Overview
+
+This project extends the earlier **Bertie’s Books** application from:
+
+- **Lab 6** – Express + MySQL integration (books, list/add/search)
+- **Lab 7** – Secure password hashing, login, and audit logging
+- **Lab 8** – Session-based authentication, route protection, input validation and general security hardening
+
+Key features now include:
+
+- **MySQL-backed book store** (list, search, add books)
+- **User registration** with passwords hashed using `bcryptjs`
+- **Login + logout** using `express-session`
+- **Protected routes** (only logged-in users can see sensitive pages)
+- **Login audit log** (success and failure attempts are stored)
+- **Default marker account** (`gold` / `smiths`) inserted via SQL script
+- **Environment variables via `.env`** for database credentials and session secret
+- **Server-side validation & sanitisation** (Lab 8b)
+  - Registration form checked for required fields, basic structure and cleaned input
+  - (Optional extra) book form validation/sanitisation to prevent obviously bad input
 
 ---
 
-## Folder Structure
+## 2. Folder Structure
 
+```text
 berties-books/
 ├── node_modules/
 ├── public/
 │   └── main.css
 ├── routes/
-│   ├── books.js
-│   ├── main.js
-│   └── users.js
+│   ├── books.js         # Book-related routes (list/add/search, bargains)
+│   ├── main.js          # Home, about, logout
+│   └── users.js         # Register, login, users list, audit log
 ├── views/
 │   ├── about.ejs
 │   ├── addbook.ejs
+│   ├── audit.ejs
 │   ├── index.ejs
 │   ├── list.ejs
 │   ├── login.ejs
 │   ├── register.ejs
 │   ├── search.ejs
-│   └── audit.ejs
-├── create_db.sql
-├── insert_test_data.sql
-├── index.js
+│   ├── search_results.ejs
+│   └── users_list.ejs
+├── create_db.sql        
+├── insert_test_data.sql 
+├── index.js             
 ├── package.json
-├── .env              ← (committed to GitHub)
+├── .env                 # DB + session config (included for marking)
 └── README.md
-
+```
 
 
 | Route                  | Method | Purpose                          |
@@ -65,6 +80,20 @@ berties-books/
 | `/users/loggedin`      | POST   | Verifies password + logs attempt |
 | `/users/list`          | GET    | Lists all users (no passwords)   |
 | `/users/audit`         | GET    | View login audit log             |
+
+### Routes protected by session (redirectLogin):
+
+**Books**
+- `GET /books/list`
+- `GET /books/addbook`
+- `POST /books/bookadded`
+
+**Users**
+- `GET /users/list`
+- `GET /users/audit`
+
+**Main**
+- `GET /logout`
 
 ---
 
@@ -123,7 +152,7 @@ SELECT * FROM books;
 ```cmd
 npm install
 node index.js
-npm install express ejs mysql2 bcryptjs dotenv
+npm install express ejs mysql2 bcryptjs dotenv express-session express-validator express-sanitizer
 ```
 ### Full list of dependencies used:
 **Core**
@@ -131,6 +160,7 @@ npm install express ejs mysql2 bcryptjs dotenv
 - ejs – templating engine
 - mysql2 – MySQL client
 - dotenv – loads `.env` variables
+- express-session - ensures security & removes ability to enter certain links without being logged in
 **Security**
 - bcryptjs – password hashing
 (Older bcrypt versions seem to incompatible or not work with the Goldsmiths VM)
