@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS audit_log (
     PRIMARY KEY (id)
 );
 
--- Application user (run as root)
+-- Application user for local / marking use.
 CREATE USER IF NOT EXISTS 'berties_books_app'@'localhost' IDENTIFIED BY 'qwertyuiop';
-GRANT ALL PRIVILEGES ON berties_books.* TO 'berties_books_app'@'localhost';
+
+-- Grant only the privileges the app actually needs, not ALL PRIVILEGES
+GRANT SELECT, INSERT, UPDATE, DELETE ON berties_books.* TO 'berties_books_app'@'localhost';

@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
 const saltRounds = 10;
 
@@ -10,9 +11,20 @@ router.get('/register', (req, res) => {
   res.render('register.ejs');
 });
 
+// Graceful handler for accidental GET /users/registered
+router.get('/registered', (req, res) => {
+  // We only support POST for registration – bounce GETs back to the form
+  res.redirect('/users/register');
+});
+
 // Handle registration – hash password and store in DB
 router.post('/registered', (req, res, next) => {
   const { username, first, last, email, password } = req.body;
+
+  // Basic sanity check
+  if (!username || !first || !last || !email || !password) {
+    return res.status(400).send('All fields are required.');
+  }
 
   bcrypt.hash(password, saltRounds, (err, hashedPassword) => {
     if (err) {
@@ -33,13 +45,17 @@ router.post('/registered', (req, res, next) => {
         first +
         ' ' +
         last +
-        ' you are now registered!  We will send an email to you at ' +
-        email;
-      // Lab 7 asks you to output both password + hash (for debugging only!)
+        ', you are now registered! We will send an email to you at ' +
+        email +
+        '.';
+
+      // Lab-style debug output (fine for coursework)
       msg +=
+        '<br>Your username is: ' +
+        username +
         '<br>Your password is: ' +
         password +
-        ' and your hashed password is: ' +
+        '<br>Your hashed password is: ' +
         hashedPassword;
 
       res.send(msg);
@@ -47,9 +63,10 @@ router.post('/registered', (req, res, next) => {
   });
 });
 
-// List users (no passwords)
+// List users (no passwords shown)
 router.get('/list', (req, res, next) => {
-  const sql = 'SELECT id, username, first, last, email FROM users ORDER BY id';
+  const sql =
+    'SELECT id, username, first, last, email FROM users ORDER BY id';
 
   db.query(sql, (err, result) => {
     if (err) {
@@ -68,7 +85,8 @@ router.get('/login', (req, res) => {
 router.post('/loggedin', (req, res, next) => {
   const { username, password } = req.body;
 
-  const sql = 'SELECT id, username, password_hash FROM users WHERE username = ?';
+  const sql =
+    'SELECT id, username, password_hash FROM users WHERE username = ?';
 
   db.query(sql, [username], (err, rows) => {
     if (err) {
@@ -85,13 +103,15 @@ router.post('/loggedin', (req, res, next) => {
 
     const user = rows[0];
     const hashedPassword = user.password_hash;
+
     bcrypt.compare(password, hashedPassword, (err2, match) => {
       if (err2) {
         return next(err2);
       }
 
       if (match) {
-        const message = 'Login successful. Welcome, ' + user.username + '!';
+        const message =
+          'Login successful. Welcome, ' + user.username + '!';
         logAudit(username, true, message, req, (logErr) => {
           if (logErr) return next(logErr);
           res.send(message);

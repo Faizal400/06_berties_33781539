@@ -23,17 +23,29 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Define our application-specific data (available in all templates as shopData)
 app.locals.shopData = { shopName: "Bertie's Books" };
 
-// Define the database connection pool (using dotenv with safe defaults)
+// Define the database connection pool
 const db = mysql.createPool({
-  host: 'localhost',
-  user: process.env.BB_USER,
-  password: process.env.BB_PASSWORD,
-  database: process.env.BB_DATABASE,
+  host: process.env.BB_HOST || process.env.DB_HOST || 'localhost',
+  user: process.env.BB_USER || process.env.DB_USER || 'berties_books_app',
+  password:
+    process.env.BB_PASSWORD || process.env.DB_PASSWORD || 'qwertyuiop',
+  database:
+    process.env.BB_DATABASE || process.env.DB_DATABASE || 'berties_books',
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
 });
 global.db = db;
+
+// Logging errors instead of crashing outright
+db.getConnection((err, connection) => {
+  if (err) {
+    console.error('Error getting DB connection:', err.message);
+  } else {
+    console.log('Database connection pool initialised.');
+    connection.release();
+  }
+});
 
 // Load the route handlers
 const mainRoutes = require('./routes/main');
