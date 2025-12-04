@@ -18,7 +18,7 @@ router.get('/', (req, res, next) => {
     });
   }
 
-  const apiKey = process.env.OPENWEATHER_API_KEY || 'YOUR_API_KEY_HERE';
+  const apiKey = process.env.OPENWEATHER_API_KEY;
   const city = rawCity;
   const url = `http://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(
     city
