@@ -31,6 +31,13 @@ Key features now include:
 - **Server-side validation & sanitisation** (Lab 8b)
   - Registration form checked for required fields, basic structure and cleaned input
   - (Optional extra) book form validation/sanitisation to prevent obviously bad input
+- **Validation & Sanitisation:**
+  - This application uses express-validator for robust user input handling.
+  - Examples include:
+    - `body('email').isEmail()` – verifies valid email format
+    - `body('username').trim().escape()` – trims whitespace & escapes HTML to prevent XSS
+    - `body('password').isLength({ min: 8 })` – ensures password length
+- These checks ensure only safe, valid data are stored in the database and improve app security.
 
 ---
 

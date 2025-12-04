@@ -35,8 +35,8 @@ router.get('/search-result', (req, res, next) => {
   });
 });
 
-// List all books (protected – Lab 8a access control)
-router.get('/list', redirectLogin, (req, res, next) => {
+// List all books
+router.get('/list', (req, res, next) => {
   const sqlquery = 'SELECT name, price FROM books ORDER BY name';
 
   db.query(sqlquery, (err, result) => {
