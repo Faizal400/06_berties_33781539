@@ -1,43 +1,50 @@
-# Berties Books – Lab 8  
-> *A continuation of Lab 6 and Lab 7*
+# Berties Books – Lab 9  
+> *A continuation of Lab 6, Lab 7, & Lab 8*
 
 Sample code for **Dynamic Web Applications** module.
 
-Uses **Node.js** with **Express**, **EJS**, **MySQL2**, **bcryptjs**, **express-session**, `dotenv`, etc.
+Uses **Node.js** with **Express**, **EJS**, **MySQL2**, **request**, **bcryptjs**, **express-session**,  
+`express-validator`, `dotenv`, etc.
 
 **Author:** Faizal Ali  
 **Student ID:** 33781539  
-**Lab 8: Sessions, Access Control, Validation & Security**
+**Lab 9: Calling APIs (9a) & Providing APIs (9b)**
 
 ---
 
 ## 1. Overview
 
-This project extends the earlier **Bertie’s Books** application from:
+This lab extends the earlier Bertie’s Books project by introducing **API consumption** (weather)  
+and **API provision** (our own `/api/books` endpoint).
 
-- **Lab 6** – Express + MySQL integration (books, list/add/search)
-- **Lab 7** – Secure password hashing, login, and audit logging
-- **Lab 8** – Session-based authentication, route protection, input validation and general security hardening
+By the end of Lab 9, the application includes:
 
-Key features now include:
+### **Lab 9a – Calling APIs**
+- Weather forecast feature at `/weather`
+- API call using the `request` module  
+- Human-friendly weather display (temperature, humidity, wind, etc.)
+- Dynamic city lookup using a form
+- Error handling for invalid locations
+- Weather link added to homepage
+- API key stored securely using `.env`
 
-- **MySQL-backed book store** (list, search, add books)
-- **User registration** with passwords hashed using `bcryptjs`
-- **Login + logout** using `express-session`
-- **Protected routes** (only logged-in users can see sensitive pages)
-- **Login audit log** (success and failure attempts are stored)
-- **Default marker account** (`gold` / `smiths`) inserted via SQL script
-- **Environment variables via `.env`** for database credentials and session secret
-- **Server-side validation & sanitisation** (Lab 8b)
-  - Registration form checked for required fields, basic structure and cleaned input
-  - (Optional extra) book form validation/sanitisation to prevent obviously bad input
-- **Validation & Sanitisation:**
-  - This application uses express-validator for robust user input handling.
-  - Examples include:
-    - `body('email').isEmail()` – verifies valid email format
-    - `body('username').trim().escape()` – trims whitespace & escapes HTML to prevent XSS
-    - `body('password').isLength({ min: 8 })` – ensures password length
-- These checks ensure only safe, valid data are stored in the database and improve app security.
+### **Lab 9b – Providing APIs**
+- New `/api/books` endpoint returning JSON  
+- API can filter by:
+  - **Search keyword** (`?search=word`)
+  - **Price range** (`?minprice=x&maxprice=y`)
+  - **Sorting** (`?sort=name` or `?sort=price`)
+- API publicly available (no authentication required)
+- Fully deployed on VM and runnable via `forever`
+- `links.txt` included for marking
+
+### Security features carried forward from earlier labs:
+- Password hashing (`bcryptjs`)
+- Session-based login & protected routes
+- Input validation and sanitisation (`express-validator`)
+- Audit logging for login attempts  
+- Sanitised + validated registration inputs  
+- Secure environment variables via `.env`
 
 ---
 
@@ -49,9 +56,11 @@ berties-books/
 ├── public/
 │   └── main.css
 ├── routes/
-│   ├── books.js         # Book-related routes (list/add/search, bargains)
-│   ├── main.js          # Home, about, logout
-│   └── users.js         # Register, login, users list, audit log
+│   ├── books.js
+│   ├── main.js
+│   ├── users.js
+│   └── weather.js         # NEW – Lab 9a
+│   └── api.js             # NEW – Lab 9b
 ├── views/
 │   ├── about.ejs
 │   ├── addbook.ejs
@@ -62,31 +71,37 @@ berties-books/
 │   ├── register.ejs
 │   ├── search.ejs
 │   ├── search_results.ejs
-│   └── users_list.ejs
-├── create_db.sql        
-├── insert_test_data.sql 
-├── index.js             
+│   ├── users_list.ejs
+│   └── weather.ejs        # NEW – Lab 9a
+├── create_db.sql
+├── insert_test_data.sql
+├── index.js
 ├── package.json
-├── .env                 # DB + session config (included for marking)
+├── .env
 └── README.md
 ```
+---
 
+## 3. Routes Overview
 
-| Route                  | Method | Purpose                          |
-| ---------------------- | ------ | -------------------------------- |
-| `/`                    | GET    | Home page                        |
-| `/about`               | GET    | About page                       |
-| `/books/search`        | GET    | Book search form                 |
-| `/books/search-result` | GET    | Displays searched keyword        |
-| `/books/list`          | GET    | Lists all books (in a table)     |
-| `/books/addbook`       | GET    | Add-book form                    |
-| `/books/bookadded`     | POST   | Inserts a new book into DB       |
-| `/users/register`      | GET    | User registration form           |
-| `/users/registered`    | POST   | Hashes password + inserts user   |
-| `/users/login`         | GET    | Login form                       |
-| `/users/loggedin`      | POST   | Verifies password + logs attempt |
-| `/users/list`          | GET    | Lists all users (no passwords)   |
-| `/users/audit`         | GET    | View login audit log             |
+| Route                  | Method | Purpose                                |
+| ---------------------- | ------ | -------------------------------------- |
+| `/`                    | GET    | Home page                              |
+| `/about`               | GET    | About page                             |
+| `/books/search`        | GET    | Search books                           |
+| `/books/search-result` | GET    | Search results                         |
+| `/books/list`          | GET    | List all books                         |
+| `/books/addbook`       | GET    | Add book form                          |
+| `/books/bookadded`     | POST   | Insert new book                        |
+| `/users/register`      | GET    | Registration form                      |
+| `/users/registered`    | POST   | Register user                          |
+| `/users/login`         | GET    | Login form                             |
+| `/users/loggedin`      | POST   | Verify credentials                     |
+| `/users/list`          | GET    | List users                             |
+| `/users/audit`         | GET    | View audit logs                        |
+| `/weather`             | GET    | Weather search form + results (Lab 9a) |
+| `/api/books`           | GET    | JSON API for books (Lab 9b)            |
+
 
 ### Routes protected by session (redirectLogin):
 
@@ -104,7 +119,7 @@ berties-books/
 
 ---
 
-## Audit logging
+## 4. Audit logging
 Every login attempt is recorded:
 
 | Field      | Description               |
@@ -126,6 +141,37 @@ Password: smiths
 Password is inserted as a correct bcryptjs hash.
 
 ---
+
+## 5. Weather API (Lab 9a)
+Features implemented:
+- Uses OpenWeatherMap API
+- API key stored in .env
+- Uses the required request module
+- Supports:
+  - Default weather view
+  - City search form
+  - Human-readable weather output
+  - Extra weather info (wind speed, humidity)
+  - Full error handling for invalid cities
+
+## 6. ### Base Endpoint (no filters)
+Returns all books.
+
+Search parameter
+> `/api/books?search=world`
+
+Price range
+> `/api/books?minprice=5&maxprice=20`
+
+Sorting
+> `/api/books?sort=name`
+> `/api/books?sort=price`
+
+**API Design Notes**
+- Does not require login (per marking instructions)
+- Returns JSON only
+- Validated + sanitised parameters before querying database
+- Fully error-handled (invalid price ranges, empty results, etc.)
 
 ## Setup
 
@@ -158,8 +204,8 @@ SELECT * FROM books;
 ### Running the app
 ```cmd
 npm install
+npm install express ejs mysql2 bcryptjs dotenv express-session request express-validator express-sanitizer
 node index.js
-npm install express ejs mysql2 bcryptjs dotenv express-session express-validator express-sanitizer
 ```
 ### Full list of dependencies used:
 **Core**
